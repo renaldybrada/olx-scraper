@@ -49,19 +49,19 @@ $ pip install -r requirements.txt
 ```sh
 $ python src\olx-property.py
 ```
-2. Input as you like
-![olx-scraper-input](https://user-images.githubusercontent.com/45556134/87877290-a29cfa80-ca07-11ea-8a8a-c74677baf144.PNG)
+2. Input as you like<br>
+![olx-scraper-input](https://user-images.githubusercontent.com/45556134/87877290-a29cfa80-ca07-11ea-8a8a-c74677baf144.PNG)<br>
 **note : next page are loop through search result page. Leave it empty first for testing**
 
 3. It takes several minutes to completed. You can view the browser operated automatically for scraping
 
-4. When scraping is completed, you can choose to sort that data
+4. When scraping is completed, you can choose to sort that data<br>
 ![olx-scraper-sort](https://user-images.githubusercontent.com/45556134/87877461-aa10d380-ca08-11ea-9769-e08c2a033b0e.PNG)
 
-5. And the result is something like this
+5. And the result is something like this<br>
 ![olx-scraper-result](https://user-images.githubusercontent.com/45556134/87877718-14764380-ca0a-11ea-9597-1869e2be2f22.PNG)
 
 
-6. When you restart the process, you will prompted to use your last search data or not
-![olx-scraper-use-last-data](https://user-images.githubusercontent.com/45556134/87877544-2d322980-ca09-11ea-877a-5bd69d5c97a4.PNG)
+6. When you restart the process, you will prompted to use your last search data or not<br>
+![olx-scraper-use-last-data](https://user-images.githubusercontent.com/45556134/87877544-2d322980-ca09-11ea-877a-5bd69d5c97a4.PNG)<br>
 choose **y** if you want to use last data, or **n** if you want to scrap new data
