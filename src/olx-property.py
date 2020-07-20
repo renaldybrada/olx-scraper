@@ -96,19 +96,22 @@ if (useCache == 'n') :
     else :
         xmax = int(nextPage)
 
-    loadMoreButton = wait.until(
-        EC.presence_of_element_located(
-            (By.XPATH, '//*[@id="container"]/main/div/section/div/div/div[4]/div[2]/div/div[3]/button')
+    try :
+        loadMoreButton = wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//*[@id="container"]/main/div/section/div/div/div[4]/div[2]/div/div[3]/button')
+            )
         )
-    )
-    x = 0
-    while x < xmax :
-        try :
-            loadMoreButton.click()
-            x += 1
-            driver.implicitly_wait(1)
-        except :
-            break
+        x = 0
+        while x < xmax :
+            try :
+                loadMoreButton.click()
+                x += 1
+                driver.implicitly_wait(1)
+            except :
+                break
+    except :
+        print("load more button not shown")
 
     # extracting item
     # get item link
@@ -125,18 +128,31 @@ if (useCache == 'n') :
     # loop item link, grab data
     result = []
     for item in items :
-        driver.get(item)
-        description = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/h1').text
+        description = ''
         pricePerM2 = 0
-        price = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/span').text
-        price = sanitizePrice(price)
-        luasM2 = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[4]/section[1]/div/div/div[1]/div/div[2]/div/span[2]').text
-        luasM2 = int(luasM2)
+        price = 0
+        luasM2 = 0
+
+        driver.get(item)
+        descriptionEl = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/h1')
+        if descriptionEl :
+            description = descriptionEl.text
+        priceEl = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/span')
+        if priceEl :
+            price = priceEl.text
+            price = sanitizePrice(price)
+        luasM2El = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[4]/section[1]/div/div/div[1]/div/div[2]/div/span[2]')
+        if luasM2El : 
+            luasM2 = int(luasM2El.text)
+            
         if(price < 15000000) :
             pricePerM2 = price
             price = pricePerM2 * luasM2
         else :
-            pricePerM2 = price/luasM2
+            try :
+                pricePerM2 = price/luasM2
+            except :
+                pricePerM2 = 0
 
         result.append({
             'link': item,
@@ -164,17 +180,26 @@ print("2. Harga per m2 termurah")
 print("3. Terluas & termurah (terluas dengan harga m2 termurah)")
 sortBy = input('1/2/3 : ')
 
+limitResult = input('limit result? (default not limited) ')
+if (limitResult == '') :
+    limitResult = len(result)
+else :
+    if (limitResult > len(result)) :
+        limitResult = len(result)
+    else :
+        limitResult = int(limitResult)
+
 if (sortBy == '1') :
     result.sort(key=lambda x: x.get('luas_m2'), reverse=True)
 elif (sortBy == '2'):
     result.sort(key=lambda x: x.get('price_per_m2'))
 else :
     result.sort(key=lambda x: x.get('luas_m2'), reverse=True)
-    result[0:9]
+    result[0:limitResult - 1]
     result.sort(key=lambda x: x.get('price_per_m2'))
 
 i = 0
-while i < 10 :
+while i < limitResult :
     print('description : ' + result[i]['description'])
     print('price per m2 : Rp' + str(result[i]['price_per_m2']))
     print('luas : ' + str(result[i]['luas_m2']) + " m2")

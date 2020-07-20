@@ -1,3 +1,4 @@
+data/*
 venv/
 debug.log
 geckodriver.log
