@@ -33,12 +33,17 @@ $ git clone https://github.com/renaldybrada/olx-scraper.git olx-scraper
 $ cd olx-scraper
 ```
 
-5. Create virtualenv
+5. Create data folder for caching scrap result
+```sh
+$ mkdir data
+```
+
+6. Create virtualenv
 ```sh
 $ python -m virtualenv venv
 ```
 
-6. Activate virtualenv and install requirements
+7. Activate virtualenv and install requirements
 ```sh
 $ venv\Scripts\activate
 $ pip install -r requirements.txt
