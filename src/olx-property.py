@@ -45,6 +45,10 @@ if (useCache == 'n') :
             (By.XPATH, '//*[@id="container"]/header/div/div/div[2]/div/div/div[2]/div/form/ul/li[1]')
         )
     )
+
+    if "Apakah maksud anda" in selectSpecificSearch.text :
+        selectSpecificSearch = driver.find_element_by_xpath('//*[@id="container"]/header/div/div/div[2]/div/div/div[2]/div/form/ul/li[2]')
+        
     selectSpecificSearch.click()
 
     # set filter
@@ -57,15 +61,18 @@ if (useCache == 'n') :
         )
         filterTipe.click()
     except :
-        print("")
+        print("filter type dijual not found")
 
     # sertifikasi shm
-    sertifikasiSHM = wait.until(
-        EC.presence_of_element_located(
-            (By.ID, 'p_certificateshm-sertifikathakmilik')
+    try :
+        sertifikasiSHM = wait.until(
+            EC.presence_of_element_located(
+                (By.ID, 'p_certificateshm-sertifikathakmilik')
+            )
         )
-    )
-    sertifikasiSHM.click()
+        sertifikasiSHM.click()
+    except :
+        print("filter shm not found")
 
     # budget max 0 - 160000000
     hargaMin = wait.until(
@@ -129,22 +136,41 @@ if (useCache == 'n') :
     result = []
     for item in items :
         description = ''
+        location = ''
         pricePerM2 = 0
         price = 0
         luasM2 = 0
 
         driver.get(item)
-        descriptionEl = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/h1')
-        if descriptionEl :
-            description = descriptionEl.text
-        priceEl = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/span')
-        if priceEl :
-            price = priceEl.text
-            price = sanitizePrice(price)
-        luasM2El = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[4]/section[1]/div/div/div[1]/div/div[2]/div/span[2]')
-        if luasM2El : 
-            luasM2 = int(luasM2El.text)
-            
+        try :
+            descriptionEl = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/h1')
+            if descriptionEl :
+                description = descriptionEl.text
+        except :
+            print('description element not found')
+        
+        try :
+            priceEl = driver.find_element_by_xpath('//*[@id="container"]/main/div/div/div/div[5]/div[1]/div/section/span')
+            if priceEl :
+                price = priceEl.text
+                price = sanitizePrice(price)
+        except :
+            print('price element not found')
+
+        try :
+            luasM2El = driver.find_element_by_css_selector('span[data-aut-id="value_p_sqr_land"')
+            if luasM2El : 
+                luasM2 = int(luasM2El.text)
+        except :
+            print('luas element not found')
+
+        try :
+            locationEl = driver.find_element_by_css_selector('span[data-aut-id="value_p_alamat"')
+            if locationEl :
+                location = locationEl.text
+        except :
+            print('location element not found')
+
         if(price < 15000000) :
             pricePerM2 = price
             price = pricePerM2 * luasM2
@@ -159,7 +185,8 @@ if (useCache == 'n') :
             'description': description,
             'price': price,
             'price_per_m2': math.ceil(pricePerM2),
-            'luas_m2': luasM2
+            'luas_m2': luasM2,
+            'location': location
         })
 
     # cache result to pickle
@@ -184,7 +211,7 @@ limitResult = input('limit result? (default not limited) ')
 if (limitResult == '') :
     limitResult = len(result)
 else :
-    if (limitResult > len(result)) :
+    if (int(limitResult) > len(result)) :
         limitResult = len(result)
     else :
         limitResult = int(limitResult)
@@ -201,9 +228,10 @@ else :
 i = 0
 while i < limitResult :
     print('description : ' + result[i]['description'])
-    print('price per m2 : Rp' + str(result[i]['price_per_m2']))
+    print('price per m2 : Rp' + str(f"{result[i]['price_per_m2'] : ,}"))
     print('luas : ' + str(result[i]['luas_m2']) + " m2")
-    print('total price : Rp' + str(result[i]['price']))
+    print('total price : Rp' + str(f"{result[i]['price'] : ,}"))
+    print('location : ' + result[i]['location'])
     print('link : ' + result[i]['link'])
     print('')
     i += 1
